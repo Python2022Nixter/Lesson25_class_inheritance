@@ -9,6 +9,8 @@ print (admin)
 
 students = admin.read_students_from_csv()
 admin.remove_student(10,students)
+admin.remove_student(15,students)
+admin.write_students_to_csv(students)
 
 
 for s in students:
