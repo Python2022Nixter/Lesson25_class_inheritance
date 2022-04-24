@@ -1,6 +1,7 @@
 import pathlib
 
 STUDENTS_CSV_FILE = "students.csv"  
+TEACHERS_CSV_FILE = "teachers.csv"
 
 class Person:
     __counter = 0
@@ -18,13 +19,18 @@ class Person:
     pass
 
 class Teacher(Person):
-    def __init__(self, first_name: str, last_name: str, email: str, employement_date: str, salary: int):
+    def __init__(self, first_name: str, last_name: str, email: str, salary: int, speciality: str):
         super().__init__(first_name, last_name, email)
-        self.employement_date = employement_date
         self.salary = salary
+        self.speciality = speciality
     
     def __str__(self) -> str:
-        return super().__str__() + f"\nemployement_date = {self.employement_date:20s}, salary = {self.salary:5d}"
+        return super().__str__() + f"\nsalary = {self.salary:10d}, speciality = {self.speciality:10s}"
+    pass
+   
+    def to_csv_string(self) -> str:
+        return f"{self.id},{self.first_name},{self.last_name},{self.email},{self.age},{self.group}"
+        
     
     pass
 
@@ -50,6 +56,9 @@ class Student(Person):
     def register_for_exam(self, exam_name: str) -> None:
         print (F"Student {self.last_name} registering for exam: {exam_name}")        
         pass  
+    
+    def to_csv_string(self) -> str:
+        return f"{self.id},{self.first_name},{self.last_name},{self.email},{self.age},{self.group}"
     pass
 
 class Administrator(Person):
@@ -79,13 +88,15 @@ class Administrator(Person):
     
     def read_students_from_csv(self) -> list[Student]:
         # STEP1: read SCV file
-        headers = []
         students_strings = []
         students = []
-        path_to_file = pathlib.Path(__file__).parent.joinpath(STUDENTS_CSV_FILE) 
-        print(path_to_file)       
+        if pathlib.Path(STUDENTS_CSV_FILE).exists():
+            path_to_file = pathlib.Path(STUDENTS_CSV_FILE)
+        else:
+            path_to_file = pathlib.Path(__file__).parent.joinpath(STUDENTS_CSV_FILE) 
+        # print(path_to_file)       
         with open(path_to_file) as f:
-            headers = f.readline()        
+            self.student_headers = f.readline()        
             students_strings = f.readlines()          
             pass
         
@@ -111,6 +122,49 @@ class Administrator(Person):
         return students
     
     def write_students_to_csv(self, students: list[Student]) -> None:
+        # create string
         
+        csv_string_student = self.student_headers
+        
+        for next_student in students:
+            csv_string_student += next_student.to_csv_string() + "\n"
+            pass
+        
+        
+        
+        # write to file
+        with open(STUDENTS_CSV_FILE, "w") as f:
+            f.write(csv_string_student)
+            pass
         return
+    
+    def read_teachers_from_csv(self) -> list[Teacher]:
+        # STEP1: read SCV file
+        teachers_strings = []
+        teachers = []
+        if pathlib.Path(TEACHERS_CSV_FILE).exists():
+            path_to_file = pathlib.Path(TEACHERS_CSV_FILE)
+        else:
+            path_to_file = pathlib.Path(__file__).parent.joinpath(TEACHERS_CSV_FILE) 
+        # print(path_to_file)       
+        with open(path_to_file) as f:
+            self.student_headers = f.readline()        
+            teachers_strings = f.readlines()          
+            pass
+        # STEP2: create list - teachers
+        for next_row in teachers_strings:
+            # create Teacher
+            # 2,Yance,Ilbert,
+            teach_data = teachers_strings[0].strip().split(",")
+            first_name = teach_data[1]
+            last_name = teach_data[2]
+            email = teach_data[3]
+            salary = int (teach_data[4])
+            spacialities = teach_data[5]
+        
+            next_teachers = Teacher(first_name, last_name, email, salary, spacialities)
+        
+            teachers.append(next_teachers)
+        
+        return teachers
     pass
